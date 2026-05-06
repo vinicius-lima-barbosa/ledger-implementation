@@ -39,5 +39,7 @@
     "noUncheckedSideEffectImports": true,
     "moduleDetection": "force",
     "skipLibCheck": true
-  }
+  },
+  "include": ["src/**/*.ts", "src/global-types/**/*.d.ts"],
+  "typeRoots": ["./src/global-types", "./node_modules/@types"]
 }

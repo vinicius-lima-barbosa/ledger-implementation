@@ -1,14 +1,6 @@
 import type { NextFunction, Request, RequestHandler, Response } from "express";
 import type { ZodSchema } from "zod";
 
-declare global {
-  namespace Express {
-    interface Request {
-      validatedBody?: unknown;
-    }
-  }
-}
-
 function buildValidationErrorResponse(
   issues: Array<{ path: PropertyKey[]; message: string }>,
 ) {

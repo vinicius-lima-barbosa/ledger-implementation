@@ -2,23 +2,30 @@ import type { SQLiteDatabase } from "../../infra/sqlite-db.js";
 import type { IAccount } from "./types.js";
 
 interface IAccountRepository {
-  getAll(): Promise<IAccount[]>;
+  getById(id: string): Promise<IAccount | null>;
+  create(data: IAccount): Promise<IAccount>;
 }
 
 export class AccountsRepository implements IAccountRepository {
   constructor(private db: SQLiteDatabase) {}
 
-  async getAll(): Promise<IAccount[]> {
+  async getById(id: string): Promise<IAccount | null> {
     const stmt = this.db.connection.prepare(
-      "SELECT * FROM accounts ORDER BY name",
+      "SELECT * FROM accounts WHERE id = ?",
     );
-    const rows = stmt.all() as any[];
+    const row = stmt.get(id);
 
-    return rows.map((row) => ({
-      id: row.id,
-      name: row.name,
-      direction: row.direction,
-    }));
+    if (!row) {
+      return null;
+    }
+
+    const account = {
+      id,
+      name: row.name as string | null,
+      direction: row.direction as "debit" | "credit",
+    };
+
+    return account;
   }
 
   async create(data: IAccount): Promise<IAccount> {

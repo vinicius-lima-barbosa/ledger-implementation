@@ -11,10 +11,7 @@ export class AccountsRoutes {
   }
 
   register() {
-    this.router.get(
-      "/",
-      this.accountsHttp.getAllAccounts.bind(this.accountsHttp),
-    );
+    this.router.get("/:id", this.accountsHttp.getById.bind(this.accountsHttp));
 
     this.router.post(
       "/",

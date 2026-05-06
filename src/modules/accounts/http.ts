@@ -5,25 +5,31 @@ import type { AccountsService } from "./service.js";
 export class AccountsHttp {
   constructor(private readonly accountsService: AccountsService) {}
 
-  async getAllAccounts(_req: Request, res: Response) {
+  async getById(req: Request<{ id: string }>, res: Response) {
     try {
-      const accounts = await this.accountsService.getAllAccounts();
-      res.status(200).json(accounts);
+      const id = req.params?.id;
+      if (!id) {
+        return res.status(400).json({ error: "Account ID is required" });
+      }
+
+      const account = await this.accountsService.getAccountById(id);
+      if (!account) {
+        return res.status(404).json({ error: "Account not found" });
+      }
+      res.status(200).json(account);
     } catch (error) {
-      res.status(500).json({ error: "Failed to fetch accounts" });
+      res.status(500).json({ error: "Failed to fetch account" });
     }
   }
 
   async createAccount(req: Request, res: Response) {
     try {
-      const validatedData = req.validatedBody;
+      const validatedData = req.validatedBody as TCreateAccounts | undefined;
       if (!validatedData) {
         return res.status(400).json({ error: "Invalid request body" });
       }
 
-      const account = await this.accountsService.create(
-        validatedData as TCreateAccounts,
-      );
+      const account = await this.accountsService.create(validatedData);
       res.status(201).json(account);
     } catch (error) {
       res.status(500).json({ error: "Failed to create account" });

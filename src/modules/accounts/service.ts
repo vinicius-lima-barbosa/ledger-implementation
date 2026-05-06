@@ -1,20 +1,28 @@
 import type { TCreateAccounts } from "./dto.js";
+import { toAccountWithBalance } from "./mapper.js";
 import type { AccountsRepository } from "./repository.js";
+import type { IAccountWithBalance } from "./types.js";
 
 export class AccountsService {
   constructor(private readonly accountsRepository: AccountsRepository) {}
 
-  getAllAccounts() {
-    return this.accountsRepository.getAll();
+  async getAccountById(id: string): Promise<IAccountWithBalance | null> {
+    const account = await this.accountsRepository.getById(id);
+    if (!account) {
+      return null;
+    }
+
+    return toAccountWithBalance(account, 0);
   }
 
-  create(data: TCreateAccounts) {
+  async create(data: TCreateAccounts): Promise<IAccountWithBalance> {
     const payload = {
       id: data.id ? data.id : crypto.randomUUID(),
       name: data.name ? data.name : null,
       direction: data.direction,
     };
 
-    return this.accountsRepository.create(payload);
+    const account = await this.accountsRepository.create(payload);
+    return toAccountWithBalance(account, 0);
   }
 }
