@@ -20,4 +20,18 @@ export class AccountsRepository implements IAccountRepository {
       direction: row.direction,
     }));
   }
+
+  async create(data: IAccount): Promise<IAccount> {
+    const stmt = this.db.connection.prepare(
+      "INSERT INTO accounts (id, name, direction) VALUES (?, ?, ?)",
+    );
+
+    stmt.run(data.id, data.name, data.direction);
+
+    return {
+      id: data.id,
+      name: data.name,
+      direction: data.direction,
+    };
+  }
 }

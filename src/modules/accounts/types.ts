@@ -1,6 +1,6 @@
 export interface IAccount {
   id: string;
-  name: string;
+  name: string | null;
   direction: "debit" | "credit";
 }
 
