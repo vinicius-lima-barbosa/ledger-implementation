@@ -17,7 +17,28 @@ export class SQLiteDatabase {
       );
     `;
 
+    const createTransactionsTable = `
+      CREATE TABLE IF NOT EXISTS transactions (
+        id TEXT NOT NULL PRIMARY KEY,
+        name TEXT
+      );
+    `;
+
+    const createEntriesTable = `
+      CREATE TABLE IF NOT EXISTS entries (
+        id TEXT NOT NULL PRIMARY KEY,
+        transaction_id TEXT NOT NULL,
+        account_id TEXT NOT NULL,
+        amount REAL NOT NULL,
+        direction TEXT NOT NULL CHECK(DIRECTION IN ('debit', 'credit')),
+        FOREIGN KEY (transaction_id) REFERENCES transactions (id),
+        FOREIGN KEY (account_id) REFERENCES accounts (id)
+      );
+    `;
+
     this.db.exec(createAccountsTable);
+    this.db.exec(createTransactionsTable);
+    this.db.exec(createEntriesTable);
   }
 
   close(): void {

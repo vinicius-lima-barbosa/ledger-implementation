@@ -1,6 +1,7 @@
 import express from "express";
 import { SQLiteDatabase } from "./infra/sqlite-db.js";
 import { AccountsModule } from "./modules/accounts/module.js";
+import { TransactionsModule } from "./modules/transactions/module.js";
 
 export class Bootstrap {
   public app;
@@ -11,6 +12,7 @@ export class Bootstrap {
 
   private setupRoutes(db: SQLiteDatabase) {
     AccountsModule(this.app, db);
+    TransactionsModule(this.app, db);
   }
 
   public init() {
