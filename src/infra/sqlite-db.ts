@@ -13,7 +13,7 @@ export class SQLiteDatabase {
       CREATE TABLE IF NOT EXISTS accounts (
         id TEXT NOT NULL PRIMARY KEY,
         name TEXT,
-        DIRECTION TEXT NOT NULL CHECK(DIRECTION IN ('debit', 'credit'))
+        direction TEXT NOT NULL CHECK(direction IN ('debit', 'credit'))
       );
     `;
 
@@ -30,7 +30,7 @@ export class SQLiteDatabase {
         transaction_id TEXT NOT NULL,
         account_id TEXT NOT NULL,
         amount REAL NOT NULL,
-        direction TEXT NOT NULL CHECK(DIRECTION IN ('debit', 'credit')),
+        direction TEXT NOT NULL CHECK(direction IN ('debit', 'credit')),
         FOREIGN KEY (transaction_id) REFERENCES transactions (id),
         FOREIGN KEY (account_id) REFERENCES accounts (id)
       );

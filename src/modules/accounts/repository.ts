@@ -9,6 +9,17 @@ interface IAccountRepository {
 export class AccountsRepository implements IAccountRepository {
   constructor(private db: SQLiteDatabase) {}
 
+  async getAll(): Promise<IAccount[]> {
+    const stmt = this.db.connection.prepare("SELECT * FROM accounts");
+    const rows = stmt.all();
+
+    return rows.map((row) => ({
+      id: row.id as string,
+      name: row.name as string | null,
+      direction: row.direction as "debit" | "credit",
+    }));
+  }
+
   async getById(id: string): Promise<IAccount | null> {
     const stmt = this.db.connection.prepare(
       "SELECT * FROM accounts WHERE id = ?",
@@ -19,13 +30,11 @@ export class AccountsRepository implements IAccountRepository {
       return null;
     }
 
-    const account = {
+    return {
       id,
       name: row.name as string | null,
       direction: row.direction as "debit" | "credit",
     };
-
-    return account;
   }
 
   async create(data: IAccount): Promise<IAccount> {

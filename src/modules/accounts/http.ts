@@ -5,6 +5,19 @@ import type { AccountsService } from "./service.js";
 export class AccountsHttp {
   constructor(private readonly accountsService: AccountsService) {}
 
+  async getAll(req: Request, res: Response) {
+    try {
+      const accounts = await this.accountsService.getAllAccounts();
+      if (accounts.length === 0) {
+        return res.status(404).json({ error: "No accounts found" });
+      }
+
+      res.status(200).json(accounts);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch accounts" });
+    }
+  }
+
   async getById(req: Request<{ id: string }>, res: Response) {
     try {
       const id = req.params?.id;

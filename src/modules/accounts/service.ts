@@ -6,6 +6,11 @@ import type { IAccountWithBalance } from "./types.js";
 export class AccountsService {
   constructor(private readonly accountsRepository: AccountsRepository) {}
 
+  async getAllAccounts(): Promise<IAccountWithBalance[]> {
+    const accounts = await this.accountsRepository.getAll();
+    return accounts.map((account) => toAccountWithBalance(account, 0));
+  }
+
   async getAccountById(id: string): Promise<IAccountWithBalance | null> {
     const account = await this.accountsRepository.getById(id);
     if (!account) {
