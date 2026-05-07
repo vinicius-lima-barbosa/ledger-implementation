@@ -1,4 +1,5 @@
 import type { TCreateTransaction } from "./dto.js";
+import { toTransactionWithEntries } from "./mapper.js";
 import type { TransactionsRepository } from "./repository.js";
 import type { ITransactionWithEntries } from "./types.js";
 
@@ -34,9 +35,6 @@ export class TransactionsService {
       entriesPayload,
     );
 
-    return {
-      ...transaction,
-      entries,
-    };
+    return toTransactionWithEntries(transaction, entries);
   }
 }
