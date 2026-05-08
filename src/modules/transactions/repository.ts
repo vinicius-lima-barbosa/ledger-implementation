@@ -1,48 +1,41 @@
 import type { SQLiteDatabase } from "../../infra/sqlite-db.js";
 import { withTransaction } from "../../shared/transaction.js";
-import type { IEntry, ITransaction } from "./types.js";
+import type { Transaction } from "./domain.js";
 
 interface ITransactionsRepository {
-  createTransaction(data: ITransaction): Promise<ITransaction>;
-  saveEntries(transactionId: string, entries: IEntry[]): Promise<IEntry[]>;
+  create(data: Transaction): Promise<void>;
 }
 
 export class TransactionsRepository implements ITransactionsRepository {
   constructor(private db: SQLiteDatabase) {}
 
-  async createTransaction(data: ITransaction): Promise<ITransaction> {
+  async create(transaction: Transaction): Promise<void> {
     const stmt = this.db.connection.prepare(
       "INSERT INTO transactions (id, name) VALUES (?, ?)",
     );
 
-    stmt.run(data.id, data.name);
+    stmt.run(transaction.id, transaction.name);
 
-    return {
-      id: data.id,
-      name: data.name as string | null,
-    };
-  }
+    const deleteEntriesStmt = this.db.connection.prepare(
+      "DELETE FROM entries WHERE transaction_id = ?",
+    );
 
-  async saveEntries(
-    transactionId: string,
-    entries: IEntry[],
-  ): Promise<IEntry[]> {
-    const stmt = this.db.connection.prepare(
+    deleteEntriesStmt.run(transaction.id);
+
+    const insertEntryStmt = this.db.connection.prepare(
       "INSERT INTO entries (id, transaction_id, account_id, amount, direction) VALUES (?, ?, ?, ?, ?)",
     );
 
-    return withTransaction(this.db.connection, () => {
-      for (const entry of entries) {
-        stmt.run(
+    withTransaction(this.db.connection, () => {
+      for (const entry of transaction.entries) {
+        insertEntryStmt.run(
           entry.id,
-          transactionId,
+          transaction.id,
           entry.accountId,
           entry.amount,
           entry.direction,
         );
       }
-
-      return entries;
     });
   }
 }

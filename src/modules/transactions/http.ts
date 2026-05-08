@@ -16,7 +16,12 @@ export class TransactionsHttp {
         await this.transactionsService.createTransaction(validatedData);
       res.status(201).json(transaction);
     } catch (error) {
-      res.status(500).json({ error: "Internal server error" });
+      res
+        .status(500)
+        .json({
+          error:
+            error instanceof Error ? error.message : "Internal Server Error",
+        });
     }
   }
 }
