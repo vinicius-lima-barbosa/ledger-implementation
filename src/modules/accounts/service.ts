@@ -1,3 +1,4 @@
+import { calculateBalance } from "../../shared/calculate-balance.js";
 import type { TCreateAccounts } from "./dto.js";
 import { toAccountWithBalance } from "./mapper.js";
 import type { AccountsRepository } from "./repository.js";
@@ -8,7 +9,17 @@ export class AccountsService {
 
   async getAllAccounts(): Promise<IAccountWithBalance[]> {
     const accounts = await this.accountsRepository.getAll();
-    return accounts.map((account) => toAccountWithBalance(account, 0));
+    return Promise.all(
+      accounts.map(async (account) => {
+        const entries = await this.accountsRepository.getEntriesByAccountId(
+          account.id,
+        );
+
+        const balance = calculateBalance(entries, account.direction);
+
+        return toAccountWithBalance(account, balance);
+      }),
+    );
   }
 
   async getAccountById(id: string): Promise<IAccountWithBalance | null> {
@@ -17,7 +28,11 @@ export class AccountsService {
       return null;
     }
 
-    return toAccountWithBalance(account, 0);
+    const entries = await this.accountsRepository.getEntriesByAccountId(id);
+
+    const balance = calculateBalance(entries, account.direction);
+
+    return toAccountWithBalance(account, balance);
   }
 
   async create(data: TCreateAccounts): Promise<IAccountWithBalance> {

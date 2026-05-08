@@ -1,4 +1,5 @@
 import type { SQLiteDatabase } from "../../infra/sqlite-db.js";
+import type { IEntry } from "../transactions/types.js";
 import type { IAccount } from "./types.js";
 
 interface IAccountRepository {
@@ -49,5 +50,23 @@ export class AccountsRepository implements IAccountRepository {
       name: data.name,
       direction: data.direction,
     };
+  }
+
+  async getEntriesByAccountId(accountId: string): Promise<IEntry[]> {
+    const stmt = this.db.connection.prepare(
+      `SELECT *
+       FROM entries
+       WHERE account_id = ?
+       GROUP BY direction`,
+    );
+
+    const result = stmt.all(accountId);
+
+    return result.map((row) => ({
+      id: row.id as string,
+      accountId: row.account_id as string,
+      amount: row.amount as number,
+      direction: row.direction as "debit" | "credit",
+    }));
   }
 }
